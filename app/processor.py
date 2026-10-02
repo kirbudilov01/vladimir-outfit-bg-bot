@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PIL import Image, ImageOps
+from PIL import Image, ImageFilter, ImageOps
 from rembg import remove
 
 from .config import Settings
@@ -33,6 +33,12 @@ class BackgroundComposer:
         y = max(0, y)
 
         result = background.copy()
+        shadow = Image.new("RGBA", result.size, (0, 0, 0, 0))
+        shadow_alpha = cutout.getchannel("A").filter(ImageFilter.GaussianBlur(14))
+        shadow_layer = Image.new("RGBA", cutout.size, (0, 0, 0, 92))
+        shadow_layer.putalpha(shadow_alpha)
+        shadow.alpha_composite(shadow_layer, (x + 8, min(result.height - cutout.height, y + 10)))
+        result = Image.alpha_composite(result, shadow)
         result.alpha_composite(cutout, (x, y))
         result.convert("RGB").save(output_path, quality=95)
 
@@ -43,4 +49,3 @@ class BackgroundComposer:
         if bbox is None:
             return image
         return image.crop(bbox)
-

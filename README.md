@@ -1,17 +1,49 @@
 # Outfit Background Transfer Bot
 
-Telegram bot for a repeatable product workflow: keep one approved background and move clothing/product photos from different source images onto it.
+Telegram bot for a repeatable production workflow: keep one approved background and move clothing/product photos from different source images onto it.
 
-## What is included
+## Current Product State
 
-- `/start` help flow.
-- Admin `/set_background` mode: send one image and it becomes the default background.
-- Any user can send source photos and receive a composited result.
-- Local processing with `rembg` + Pillow. No paid image API is required for the base workflow.
+This repo is ready to run as a working MVP after you add a real Telegram bot token.
+
+Implemented:
+
+- Telegram onboarding and persistent keyboard.
+- Admin-only background setup.
+- `/status`, `/help`, `/cancel` support.
+- Operator flow: send source photo, receive composited result.
+- Local background removal with `rembg`.
+- Pillow composition with placement controls and soft shadow.
 - SQLite job history.
-- Docker and docker-compose setup.
+- Docker and docker-compose deployment.
+- No paid AI API required for the base workflow.
 
-## Quick start
+Not included yet by design:
+
+- Real Telegram bot token.
+- Human visual QA rules for each product category.
+- Batch album processing.
+- Manual crop/position editor.
+
+## External Services Needed
+
+Required:
+
+- Telegram BotFather bot token: `BOT_TOKEN`.
+- A server/VPS or any Docker host.
+
+Required model dependency:
+
+- `rembg` uses an open model for background removal.
+- On first run it may download model files. Make sure the server has internet access during first processing.
+
+Not required:
+
+- OpenAI API key.
+- Payment provider.
+- Mini app hosting.
+
+## Quick Start
 
 ```bash
 cp .env.example .env
@@ -21,7 +53,7 @@ pip install -r requirements.txt
 python -m app.main
 ```
 
-For production:
+Production:
 
 ```bash
 docker compose up -d --build
@@ -29,16 +61,52 @@ docker compose up -d --build
 
 ## Environment
 
-- `BOT_TOKEN` is required.
-- `ADMIN_IDS` is a comma-separated list of Telegram user ids.
-- `BACKGROUND_PATH` points to the approved background image.
+```bash
+BOT_TOKEN=123456:telegram-bot-token
+ADMIN_IDS=123456789
+DATABASE_PATH=./data/outfit_bg.sqlite3
+BACKGROUND_PATH=./data/background.jpg
+PLACEMENT_WIDTH_RATIO=0.72
+PLACEMENT_HEIGHT_RATIO=0.82
+PLACEMENT_BOTTOM_MARGIN_RATIO=0.04
+```
 
-## Workflow
+## Admin Flow
 
-1. Admin sends `/set_background`.
-2. Admin sends the fixed background image.
-3. Operators send source images with clothing/product.
-4. Bot removes the source background, fits the object into the configured placement area, and returns the final image.
+1. Open `/start`.
+2. Press `Задать фон` or send `/set_background`.
+3. Send the approved background image.
+4. Check `/status`.
 
-The default placement is centered and conservative. Change `PLACEMENT_WIDTH_RATIO`, `PLACEMENT_HEIGHT_RATIO`, and `PLACEMENT_BOTTOM_MARGIN_RATIO` in `.env` for the exact catalog template.
+## Operator Flow
 
+1. Send a clear source photo of the item.
+2. Wait while the bot removes the original background.
+3. Receive the final image on the fixed background.
+4. Send the next source photo.
+
+## Input Quality Rules
+
+Best results:
+
+- object is visible fully;
+- background is not the same color as the item;
+- good light and sharp focus;
+- no hands covering important parts;
+- no heavy shadows crossing the item.
+
+Weak results usually come from:
+
+- transparent, white-on-white, black-on-black, or fuzzy items;
+- cropped product edges;
+- mirrors, reflections, or clutter behind the item.
+
+## Tuning
+
+If the item is too large or small, adjust:
+
+- `PLACEMENT_WIDTH_RATIO`;
+- `PLACEMENT_HEIGHT_RATIO`;
+- `PLACEMENT_BOTTOM_MARGIN_RATIO`.
+
+The default setup is conservative and centered. For a real catalog workflow, tune these values using 20-30 representative photos and one final approved background.
