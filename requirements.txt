@@ -1,0 +1,7 @@
+aiogram==3.13.1
+onnxruntime==1.19.2
+pillow==10.4.0
+pydantic-settings==2.5.2
+python-dotenv==1.0.1
+rembg==2.0.59
+

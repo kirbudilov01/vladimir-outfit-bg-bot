@@ -1,0 +1,9 @@
+services:
+  outfit-bg-bot:
+    build: .
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+      - ./storage:/app/storage
+
