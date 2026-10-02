@@ -65,7 +65,9 @@ async def register_handlers(dp: Dispatcher, bot: Bot, store: Store, composer: Ba
             f"Файл фона: {settings.background_path}\n"
             f"Ширина размещения: {settings.placement_width_ratio:.2f}\n"
             f"Высота размещения: {settings.placement_height_ratio:.2f}\n"
-            f"Нижний отступ: {settings.placement_bottom_margin_ratio:.2f}",
+            f"Нижний отступ: {settings.placement_bottom_margin_ratio:.2f}\n"
+            f"Лимит фото: {settings.max_photo_mb} MB\n"
+            f"Готовых задач: {store.stats()['jobs']}",
             reply_markup=main_keyboard(is_admin(message, settings)),
         )
 
@@ -97,6 +99,10 @@ async def register_handlers(dp: Dispatcher, bot: Bot, store: Store, composer: Ba
         background = Path(settings.background_path)
         if not background.exists():
             await message.answer("Фон еще не задан. Администратор должен нажать Задать фон или выполнить /set_background.")
+            return
+        file_size = message.photo[-1].file_size or 0
+        if file_size > settings.max_photo_mb * 1024 * 1024:
+            await message.answer(f"Фото слишком тяжелое. Лимит: {settings.max_photo_mb} MB.")
             return
 
         token = uuid4().hex

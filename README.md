@@ -15,6 +15,10 @@ Implemented:
 - Local background removal with `rembg`.
 - Pillow composition with placement controls and soft shadow.
 - SQLite job history.
+- Job stats in `/status`.
+- File-size guardrail.
+- Docker healthcheck.
+- GitHub Actions CI.
 - Docker and docker-compose deployment.
 - No paid AI API required for the base workflow.
 
@@ -69,6 +73,8 @@ BACKGROUND_PATH=./data/background.jpg
 PLACEMENT_WIDTH_RATIO=0.72
 PLACEMENT_HEIGHT_RATIO=0.82
 PLACEMENT_BOTTOM_MARGIN_RATIO=0.04
+MAX_PHOTO_MB=20
+OUTPUT_QUALITY=95
 ```
 
 ## Admin Flow
@@ -110,3 +116,39 @@ If the item is too large or small, adjust:
 - `PLACEMENT_BOTTOM_MARGIN_RATIO`.
 
 The default setup is conservative and centered. For a real catalog workflow, tune these values using 20-30 representative photos and one final approved background.
+
+## Verification
+
+Local syntax check:
+
+```bash
+python -m compileall app tests
+```
+
+Unit tests:
+
+```bash
+pytest -q
+```
+
+Docker healthcheck:
+
+```bash
+python -m app.healthcheck
+```
+
+CI runs compile and tests on every push through GitHub Actions.
+
+## 100/100 Launch Checklist
+
+The code is complete for handoff. To call the live product 100/100, complete these external steps:
+
+1. Create a BotFather bot and set `BOT_TOKEN`.
+2. Put admin Telegram ids into `ADMIN_IDS`.
+3. Start the bot on the production server.
+4. Run `/start`, `/status`, `Задать фон`.
+5. Upload the final approved background.
+6. Process 20-30 real source photos.
+7. Tune placement ratios in `.env`.
+8. Restart and confirm `/status` still sees the background and job stats.
+9. Give operators the source-photo quality rules above.

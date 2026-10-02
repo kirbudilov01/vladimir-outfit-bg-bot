@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PIL import Image, ImageFilter, ImageOps
+from PIL import Image, ImageFilter
 from rembg import remove
 
 from .config import Settings
@@ -40,7 +40,7 @@ class BackgroundComposer:
         shadow.alpha_composite(shadow_layer, (x + 8, min(result.height - cutout.height, y + 10)))
         result = Image.alpha_composite(result, shadow)
         result.alpha_composite(cutout, (x, y))
-        result.convert("RGB").save(output_path, quality=95)
+        result.convert("RGB").save(output_path, quality=self.settings.output_quality)
 
     @staticmethod
     def _trim_alpha(image: Image.Image) -> Image.Image:

@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     placement_width_ratio: float = 0.72
     placement_height_ratio: float = 0.82
     placement_bottom_margin_ratio: float = 0.04
+    max_photo_mb: int = 20
+    output_quality: int = 95
 
     @property
     def admins(self) -> set[int]:
@@ -21,4 +23,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-

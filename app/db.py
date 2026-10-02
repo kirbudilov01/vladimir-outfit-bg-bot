@@ -34,3 +34,8 @@ class Store:
                 (telegram_id, input_path, output_path),
             )
 
+    def stats(self) -> dict[str, int]:
+        with self.connect() as db:
+            jobs = db.execute("select count(*) as c from jobs").fetchone()["c"]
+            users = db.execute("select count(distinct telegram_id) as c from jobs").fetchone()["c"]
+        return {"jobs": jobs, "users": users}
